@@ -38,7 +38,10 @@ void main()
 	int res1 = pthread_join(t1,&resp1);
 	int res2 = pthread_join(t2,&resp2);
 	printf("res1 =%d\t,res2= %d\n\n",res1,res2);
-	printf("resp1=%s\nresp2=%s\n\n",(char *) resp1,(char *) resp2);
+	if (resp1 != PTHREAD_CANCELED && resp2 != PTHREAD_CANCELED)//if thread not cancelled then only typecase can work else gives segmentation fault
+	{
+	    printf("resp1=%s\nresp2=%s\n\n",(char *) resp1,(char *) resp2);
+	}
 	printf(" Main program is going to end\n");
 	return ;
 }
