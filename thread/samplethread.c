@@ -7,18 +7,31 @@
 #include<stdlib.h>
 #include<pthread.h>
 
-void * Samplethread2()
-{
- printf("hey bossy i'm in Samplethread2 thread\n\n");
- return "Samplethread2";
+static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+int long counter = 0;
 
+void * Samplethread2(void* arg)
+{
+	int times = *((int*)arg);
+ 	printf("hey bossy i'm in Samplethread2 thread\n\n");
+ 	for (int i=0;i<times;++i){
+    	pthread_mutex_lock(&lock);
+ 		printf("hey bossy i'm in Samplethread2 thread\n\n");
+        counter++;
+        pthread_mutex_unlock(&lock);
+    }
+ return "Samplethread2";
 }
 
-
-
-void * Samplethread()
+void * Samplethread(void* arg)
 {
-   printf("hey boss i'm in samplethread\n\n");
+    int times = *((int*)arg);
+	for (int i=0;i<times;++i){
+    	pthread_mutex_lock(&lock);
+	  	printf("hey boss i'm in samplethread\n\n");
+        counter++;
+        pthread_mutex_unlock(&lock);
+    }
    printf("samplethread terminating\n\n\n");
    return "Samplethread";
 }
@@ -27,13 +40,12 @@ void main()
 {
 
 	pthread_t t1,t2;
+	 const int times = 50000;
 	void *resp1,*resp2;
-	int ret = pthread_create(&t1,NULL,Samplethread,NULL);
+	int ret = pthread_create(&t1,NULL,Samplethread,(void*)&times);
 	printf("ret === %d\n",ret);
-
-	int ret2=pthread_create(&t2,NULL,Samplethread2,NULL);
+	int ret2=pthread_create(&t2,NULL,Samplethread2,(void*)&times);
 	printf("ret2 === %d\n",ret2);
-
 	printf(" going to wait on pthreaad_join\n\n");
 	int res1 = pthread_join(t1,&resp1);
 	int res2 = pthread_join(t2,&resp2);
@@ -42,6 +54,10 @@ void main()
 	{
 	    printf("resp1=%s\nresp2=%s\n\n",(char *) resp1,(char *) resp2);
 	}
+	printf("Final counter=%ld (expected %d)\n", counter, times*2);
+	/*
+	witout mutex output is Final counter=82279 (expected 100000)
+	*/
 	printf(" Main program is going to end\n");
 	return ;
 }
