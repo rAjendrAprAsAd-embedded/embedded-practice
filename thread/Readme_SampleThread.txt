@@ -12,3 +12,8 @@
 ### Final understanding
 	-->Every created thread must be joined, else outcome is inconsistent.
 
+
+##Note:-
+The pthread_mutex_trylock() function is the same as pthread_mutex_lock(), except
+that if the mutex is currently locked, pthread_mutex_trylock() fails, returning the
+error EBUSY.
